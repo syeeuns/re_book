@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Re_Book</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Nanum Myeongjo', serif;
+        }
+
+        .jumbotron {
+            padding: 150px 32px;
+            text-align: center;
+            background: #acb6e5; /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #86fde8, #acb6e5); /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #86fde8, #acb6e5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+        }
+
+        #btn-save {
+            background-color: rgb(255, 190, 120);
+            color: white;
+            border: none;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            padding-top: 10px;
+        }
+
+        .container {
+
+        }
+
+        .card {
+            width: 250px;
+            height: 700px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 0;
+        }
+
+        .card:hover {
+            overflow: auto;
+        }
+
+        .card::-webkit-scrollbar {
+            width: 5px; /* Chrome, Safari, Opera*/
+        }
+
+        .card::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.5); /* Chrome, Safari, Opera*/
+            border-radius: 3px;
+        }
+
+        .card-img-top {
+            margin-right: auto;
+            margin-left: auto;
+            border-radius: 0;
+            width: 220px;
+            height: 330px;
+        }
+
+        .tag {
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            display: none;
+            width: 70%;
+            margin: 30px auto;
+            padding: 50px;
+            background-color: rgba(255, 190, 120, 0.3);
+            border-radius: 30px;
+        }
+
+        #btn-buy {
+            margin-left: 100px;
+        }
+
+        .card-footer {
+            background: white;
+            border: none;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('.row').empty();
+            showBooks();
+        })
+
+        function showBooks() {
+            $.ajax({
+                type: 'GET',
+                url: `/list`,
+                data: {},
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        let books = response['books'];
+
+                        for (let i = 0; i < books.length; i++) {
+                            let url = books[i]['url'];
+                            let img = books[i]['img'];
+                            let tag = books[i]['tag'];
+                            let title = books[i]['title'];
+                            let author = books[i]['author'];
+                            let quote = books[i]['quote'];
+                            let comment = books[i]['comment']
+
+                            let temp_html =
+                                `<div class="col">
+                                    <div class="card">
+                                        <button type="button" class="btn btn-light" id="btn-del" onclick="delBook('${title}')">삭제</button>
+                                        <img src="${img}" class="card-img-top" alt="${title}">
+                                        <div class="card-body">
+                                            <span class="tag is-info is-light">#${tag}</span>
+                                            <h5 class="card-title" style="margin-bottom: 3px;">${title}</h5>
+                                            <p class="card-text" id="text-author" style="color:gray;">${author}</p>
+                                            <p class="card-text" id="text-quote" style="color:dodgerblue;">${quote}</p>
+                                            <p class="card-text" id="text-comment">${comment}</p>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a class="btn btn-primary" href="${url}" role="button" id="btn-buy">책 구매하기</a>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            $('.row').append(temp_html);
+
+                        }
+                    }
+                }
+            })
+        }
+
+        function postBook() {
+            url_give = $('#input-url').val();
+            tag_give = $('#input-tag').val();
+            quote_give = $('#input-quote').val();
+            comment_give = $('#input-comment').val();
+            $.ajax({
+                type: 'POST',
+                url: `/list`,
+                data: {
+                    'url_give': url_give,
+                    'tag_give': tag_give,
+                    'quote_give': quote_give,
+                    'comment_give': comment_give
+                },
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        alert(response['msg']);
+                        window.location.reload();
+                    } else {
+                        alert('서버 오류');
+                    }
+                }
+            })
+        }
+
+        function openClose() {
+            let status = $('.form-container').css("display");
+            if (status === "none") {
+                $('.form-container').show();
+                $('#btn-save').text('닫기');
+            } else {
+                $('.form-container').hide();
+                $('#btn-save').text('등록');
+            }
+        }
+
+        function delBook(title) {
+            $.ajax({
+                type: 'POST',
+                url: `/list/del`,
+                data: {'title':title},
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        alert(response['msg']);
+                        window.location.reload();
+                    } else {
+                        alert('서버 오류');
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<div class="jumbotron">
+    <h1 class="title">Re-book</h1>
+    <p class="subtitle">오늘의 기분을 담아, 미래의 나에게 책을 제안해보세요.</p>
+    <a class="btn" href="#" role="button" id="btn-save" onclick="openClose()">등록</a>
+</div>
+<div class="form-container">
+    <div class="form-group">
+        <label for="input-url">Book URL</label>
+        <input type="text" class="form-control" id="input-url"
+               placeholder="http://www.yes24.com/Product/Goods/93068681">
+    </div>
+    <div class="form-group">
+        <label for="input-tag">태그</label>
+        <textarea class="form-control" id="input-tag" rows="1" placeholder="한 단어로 표현해주세요."></textarea>
+    </div>
+    <div class="form-group">
+        <label for="input-quote">밑줄 그은 문장</label>
+        <textarea class="form-control" id="input-quote" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="input-comment">나의 코멘트</label>
+        <textarea class="form-control" id="input-comment" rows="2"></textarea>
+    </div>
+    <button type="submit" class="btn btn-dark" onclick="postBook()">저장</button>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <button type="button" class="btn btn-light" id="btn-del" onclick="delBook()">삭제</button>
+                <img src="http://image.yes24.com/goods/93068681/800x0" class="card-img-top" alt="...">
+
+                <div class="card-body">
+                    <span class="tag is-info is-light">#태그</span>
+                    <h5 class="card-title" style="margin-bottom: 3px;">책 제목</h5>
+                    <p class="card-text" id="text-author" style="color:gray;">저자</p>
+                    <p class="card-text" id="text-quote" style="color:dodgerblue;">밑줄그은문장</p>
+                    <p class="card-text" id="text-comment">코멘트</p>
+
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary" href="#" role="button" id="btn-buy">책 구매하기</a>
+                </div>
+
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a short card.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
