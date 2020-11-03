@@ -57,5 +57,13 @@ def delBook():
     return jsonify({'result':'success','msg':title + ': 삭제되었습니다.'})
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    id = request.form['id']
+    pw = request.form['pw']
+    if id=="yeny" and pw=="yeny":
+        return jsonify({'result':'success','msg':'로그인 성공!'})
+
+
 if __name__ == '__main__':
     app.run()

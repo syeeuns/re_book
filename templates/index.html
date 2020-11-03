@@ -99,14 +99,31 @@
             background: white;
             border: none;
         }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0);
+            display: flex;
+            float: right;
+        }
+
+        #btn-login {
+            background-color: rgba(0, 0, 0, 0);
+            border: 1px solid black;
+        }
+
+        #login-form{
+            height: 250px;
+            border-radius: 5px;
+        }
+
     </style>
     <script>
         $(function () {
             $('.row').empty();
-            showBooks();
         })
 
         function showBooks() {
+            $('#login-msg').hide();
             $.ajax({
                 type: 'GET',
                 url: `/list`,
@@ -168,7 +185,7 @@
                         alert(response['msg']);
                         window.location.reload();
                     } else {
-                        alert('서버 오류');
+                        alert('올바른 아이디와 비밀번호를 입력해주세요.');
                     }
                 }
             })
@@ -189,7 +206,7 @@
             $.ajax({
                 type: 'POST',
                 url: `/list/del`,
-                data: {'title':title},
+                data: {'title': title},
                 success: function (response) {
                     if (response['result'] === 'success') {
                         alert(response['msg']);
@@ -200,9 +217,58 @@
                 }
             })
         }
+
+        function login() {
+            let id = $('#input-id').val();
+            let pw = $('#input-pw').val();
+            if(id === "" || pw === ""){
+                alert('아이디와 비밀번호를 입력하세요.');
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: `/login`,
+                data: {'id':id, 'pw':pw},
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        alert(response['msg']);
+                        showBooks();
+                    } else {
+                        alert('서버 오류');
+                    }
+                }
+            })
+        }
     </script>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+            <li>
+  <button class="btn btn-light" id="btn-login" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    로그인
+  </button>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body" id="login-form">
+      <div class="form-login">
+  <div class="form-group">
+    <label for="input-id">아이디</label>
+    <input type="text" class="form-control" id="input-id" aria-describedby="emailHelp">
+  </div>
+  <div class="form-group">
+    <label for="input-pw">비밀번호</label>
+    <input type="password" class="form-control" id="input-pw">
+  </div>
+  <button type="submit" class="btn btn-primary" id="btn-submit" onclick="login()">로그인</button>
+</div>
+  </div>
+</div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
 <div class="jumbotron">
     <h1 class="title">Re-book</h1>
     <p class="subtitle">오늘의 기분을 담아, 미래의 나에게 책을 제안해보세요.</p>
@@ -230,6 +296,7 @@
 </div>
 
 <div class="container">
+    <h4 id="login-msg">로그인을 하면, 저장한 책들을 볼 수 있습니다.</h4>
     <div class="row">
         <div class="col">
             <div class="card">
